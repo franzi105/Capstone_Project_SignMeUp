@@ -1,112 +1,84 @@
-# ds-modeling-pipeline
 
-Here you find a Skeleton project for building a simple model in a python script or notebook and log the results on MLFlow.
+# SignMeUp: Real-time recognition of American Sign Language
 
-There are two ways to do it: 
-* In Jupyter Notebooks:
-    We train a simple model in the [jupyter notebook](notebooks/EDA-and-modeling.ipynb), where we select only some features and do minimal cleaning. The hyperparameters of feature engineering and modeling will be logged with MLflow
+This project aims to develop a machine learning model that recognizes American Sign Language (ASL) signs in videos. The model is designed to be integrated into an innovative learning app that enables users to practice ASL signs using their phone camera and receive instant feedback. This makes learning ASL more accessible, particularly for the hearing parents of deaf children who may not be familiar with ASL.
 
-* With Python scripts:
-    The [main script](modeling/train.py) will go through exactly the same process as the jupyter notebook and also log the hyperparameters with MLflow
+# Setup and Installation
 
-Data used is the [coffee quality dataset](https://github.com/jldbc/coffee-quality-database).
+To install and run this project, follow these steps:
 
-## Requirements:
+1. Clone this repository to your local machine.
 
-- pyenv with Python: 3.9.4
+2. Setup virtual environment and install the required libraries:
 
-### Setup
-
-Use the requirements file in this repo to create a new environment.
-
-```BASH
-make setup
-
-#or
-
+```python
 pyenv local 3.9.8
 python -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install -r requirements_dev.txt
+pip install -r requirements.txt
 ```
 
-The `requirements.txt` file contains the libraries needed for deployment.. of model or dashboard .. thus no jupyter or other libs used during development.
+3. Download the dataset from [Isolated Sign Recognition Language/Data](https://www.kaggle.com/competitions/asl-signs/data) and save it in the `data` folder.
 
-The MLFLOW URI should **not be stored on git**, you have two options, to save it locally in the `.mlflow_uri` file:
+Note: This project is a Kaggle competition, and therefore requires a Kaggle account to download the dataset. You will need to accept the competition rules and agree to the terms and conditions before you can access the dataset.
 
-```BASH
-echo http://127.0.0.1:5000/ > .mlflow_uri
-```
+# Notebooks Overview
+* Domain Knowledge and information about the project : 
+  * "01_DomainKnowledge"
+  * this notebook gives first insights into the project and performs EDA on the whole dataset including visualization of video sequences
+* EDA of the dataset:
+  * "02_EDA"
+* Visualization of sign language sequences:
+  * "03.1_Visualization"
+* Drawing landmarks on video files: 
+  * "03.2_DrawMediaPipe_fromVideoFile"
+  * load a mp4 video file to the notebook to detect MediaPipe landmarks and draw detected markers on the video. 
+* Dummy Classifier as zero baseline model:
+  * "04.1_Dummy_Baseline"
+* SKTime Baseline models:
+  * "04.2_SKTIME_first_baseline_model"
+* Preprocessing Notebook: 
+  * "05_Preprocessing"
+  * Notebook to preprocess raw data and compile all sequences into one dataset 
+* Modeling: 
+  * "06.1_Modeling_LSTM"
+  * "06.2_Modelling_Rocket"
+  * "06.3_Modelling_sklearn"
+* Real Time prediction: 
+  * "07_Real-Time-Demo_SignMeUp"
+  * further explained in 'Usage'
 
-This will create a local file where the uri is stored which will not be added on github (`.mlflow_uri` is in the `.gitignore` file). Alternatively you can export it as an environment variable with
+# Usage 
 
-```bash
-export MLFLOW_URI=http://127.0.0.1:5000/
-```
+Steps to Use ASL Recognition Model for real time prediction:
 
-This links to your local mlflow, if you want to use a different one, then change the set uri.
+1. Start the ASL real time prediction by running the notebook "07_Real-Time-Demo_SignMeUp".
+2. Ensure that you have good lighting conditions and a clear view of your hand gestures for best results.
 
-The code in the [config.py](modeling/config.py) will try to read it locally and if the file doesn't exist will look in the env var.. IF that is not set the URI will be empty in your code.
+### Game Menu
+![image](./images/Real-Time-Demo-Menu.png)
+### Note:
 
-## Usage
+- Make sure that the sign is in the dataset used to train the model for accurate recognition.
+- If you face any issues with the recognition, try adjusting the lighting or the angle of the camera to get a clearer view of the sign.
 
-### Creating an MLFlow experiment
 
-You can do it via the GUI or via [command line](https://www.mlflow.org/docs/latest/tracking.html#managing-experiments-and-runs-with-the-tracking-service-api) if you use the local mlflow:
 
-```bash
-mlflow experiments create --experiment-name 0-template-ds-modeling
-```
+# Conclusion
 
-Check your local mlflow
+The ASL recognition model developed in this project has the potential to make a significant impact in improving accessibility and communication for the deaf and hard-of-hearing communities. The integration of this model into an innovative learning app has the potential to transform the way people learn ASL, particularly for the hearing parents of deaf children who may not be familiar with ASL.
 
-```bash
-mlflow ui
-```
+The next steps for the project involve deploying the model in a mobile application, specifically a sign language learning app. 
+Moreover, one of our aim is to collect and add more signs. Additionally, we plan to train models for other sign languages and develop a translation tool that enables natural social interactions and solves everyday problems in public, educational, and commercial settings, such as at a hairdresser or supermarket. The potential impact of these future applications is considerable, making this an exciting and promising project for the advancement of sign language recognition technology.
 
-and open the link [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-This will throw an error if the experiment already exists. **Save the experiment name in the [config file](modeling/config.py).**
 
-In order to train the model and store test data in the data folder and the model in models run:
 
-```bash
-#activate env
-source .venv/bin/activate
 
-python -m modeling.train
-```
 
-In order to test that predict works on a test set you created run:
 
-```bash
-python modeling/predict.py models/linear data/X_test.csv data/y_test.csv
-```
 
-## About MLFLOW -- delete this when using the template
 
-MLFlow is a tool for tracking ML experiments. You can run it locally or remotely. It stores all the information about experiments in a database.
-And you can see the overview via the GUI or access it via APIs. Sending data to mlflow is done via APIs. And with mlflow you can also store models on S3 where you version them and tag them as production for serving them in production.
-![mlflow workflow](images/0_general_tracking_mlflow.png)
 
-### MLFlow GUI
 
-You can group model trainings in experiments. The granularity of what an experiment is up to your usecase. Recommended is to have an experiment per data product, as for all the runs in an experiment you can compare the results.
-![gui](images/1_gui.png)
-
-### Code to send data to MLFlow
-
-In order to send data about your model you need to set the connection information, via the tracking uri and also the experiment name (otherwise the default one is used). One run represents a model, and all the rest is metadata. For example if you want to save train MSE, test MSE and validation MSE you need to name them as 3 different metrics.
-If you are doing CV you can set the tracking as nested.
-![mlflow code](images/2_code.png)
-
-### MLFlow metadata
-
-There is no constraint between runs to have the same metadata tracked. I.e. for one run you can track different tags, different metrics, and different parameters (in cv some parameters might not exist for some runs so this .. makes sense to be flexible).
-
-- tags can be anything you want.. like if you do CV you might want to tag the best model as "best"
-- params are perfect for hypermeters and also for information about the data pipeline you use, if you scaling vs normalization and so on
-- metrics.. should be numeric values as these can get plotted
-
-![mlflow metadata](images/3_metadata.png)
